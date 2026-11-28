@@ -52,8 +52,6 @@
   }
 
   .wrapper {
-    /* Skaliert mit dem Fenster (95vw), aber nicht kleiner als 1000px, 
-       damit der Desktop-Modus intakt bleibt. */
     width: 95vw;
     min-width: 1000px;
     max-width: 1600px;
@@ -101,7 +99,7 @@
     background: var(--bg);
     border: 1px solid var(--border);
     padding: 0.55rem 0.85rem;
-    width: 270px;
+    width: 285px;
     max-width: 100%;
     user-select: none;
     text-decoration: none;
@@ -218,6 +216,19 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .pw-extra-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 0.25rem;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+  }
+
+  .pw-extra-status .pw-status {
+    font-size: 0.62rem;
   }
 
   .pw-meta {
@@ -449,24 +460,15 @@
     margin-top: 0.3rem;
   }
 
-  /* Anpassung für Grid bei schrumpfendem Fenster */
   @media (max-width: 1200px) {
-    .wrapper {
-      width: 95vw;
-      /* Ab hier darf der Wrapper schrumpfen */
-    }
-    .core-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    .wrapper { width: 95vw; }
+    .core-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 
   @media (max-width: 900px) {
-    .tools-grid {
-      grid-template-columns: 1fr;
-    }
+    .tools-grid { grid-template-columns: 1fr; }
   }
 
-  /* Mobiler Modus: setzt die min-width außer Kraft */
   @media (max-width: 1000px) {
     body {
       display: block;
@@ -513,6 +515,12 @@
           <div class="pw-leader-row">
             <span>Lead</span>
             <span class="pw-leader" id="pw-leader">…</span>
+          </div>
+          
+          <!-- New row for Whiplash (teamBars) -->
+          <div class="pw-extra-status" id="pw-whiplash-row" style="display: none;">
+            <span>Whiplash:</span>
+            <span class="pw-status is-not-finished" id="pw-whiplash-status">--</span>
           </div>
 
           <div class="pw-meta">
@@ -782,6 +790,9 @@ function mountPortwatch() {
   const pwLeader = document.getElementById("pw-leader");
   const pwNoteLeader = document.getElementById("pw-note-leader");
   const pwUpdated = document.getElementById("pw-updated");
+  const pwWhiplashRow = document.getElementById("pw-whiplash-row");
+  const pwWhiplashStatus = document.getElementById("pw-whiplash-status");
+  
   const otDot = document.getElementById("ot-dot");
   const otStatus = document.getElementById("ot-status");
 
@@ -844,7 +855,16 @@ function mountPortwatch() {
       (Number.isFinite(pct) && pct >= 100) ||
       (effort && effort.finished === true);
 
-    return { leader, finished: !!finished };
+    // Check for Whiplash (teamBars)
+    let whiplashFinished = null;
+    if (Array.isArray(data.teamBars)) {
+      const whiplash = data.teamBars.find(t => t.id === "whiplash" || t.name.toLowerCase() === "whiplash");
+      if (whiplash) {
+         whiplashFinished = whiplash.finished === true;
+      }
+    }
+
+    return { leader, finished: !!finished, whiplashFinished };
   }
 
   async function syncPortwatch() {
@@ -855,14 +875,25 @@ function mountPortwatch() {
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
       const state = resolvePortwatch(data);
+      
       if (state) {
         setLeader(pwLeader, pwNoteLeader, state.leader);
         setStatus(pwStatus, pwDot, pwUpdated, state);
+        
+        if (state.whiplashFinished !== null) {
+          pwWhiplashRow.style.display = "flex";
+          pwWhiplashStatus.textContent = state.whiplashFinished ? "finished" : "not finished";
+          pwWhiplashStatus.className = `pw-status ${state.whiplashFinished ? "is-finished" : "is-not-finished"}`;
+        } else {
+          pwWhiplashRow.style.display = "none";
+        }
       } else {
         setStatus(pwStatus, pwDot, pwUpdated, null);
+        pwWhiplashRow.style.display = "none";
       }
     } catch (err) {
       setStatus(pwStatus, pwDot, pwUpdated, null);
+      pwWhiplashRow.style.display = "none";
     }
   }
 

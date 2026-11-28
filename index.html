@@ -31,8 +31,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.75rem;
-    line-height: 1.35;
+    padding: 1rem;
+    line-height: 1.45;
     overflow-x: hidden;
   }
 
@@ -52,12 +52,15 @@
   }
 
   .wrapper {
-    max-width: 1220px;
-    width: 100%;
+    /* Skaliert mit dem Fenster (95vw), aber nicht kleiner als 1000px, 
+       damit der Desktop-Modus intakt bleibt. */
+    width: 95vw;
+    min-width: 1000px;
+    max-width: 1600px;
     background: var(--card);
     border: 1px solid var(--border);
-    padding: 0.85rem 1.05rem;
-    box-shadow: 0 0 40px rgba(0, 100, 236, 0.08);
+    padding: 1.1rem 1.4rem;
+    box-shadow: 0 0 50px rgba(0, 100, 236, 0.1);
   }
 
   .header {
@@ -65,14 +68,14 @@
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 14px;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.65rem;
+    padding-bottom: 0.65rem;
+    margin-bottom: 0.85rem;
   }
 
   .header h1 {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     font-weight: 900;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -81,24 +84,24 @@
   }
 
   .header .sub {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     color: var(--text-dim);
     letter-spacing: 1.5px;
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
   .trackers-wrap {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 12px;
     align-items: stretch;
   }
 
   .pw-box {
     background: var(--bg);
     border: 1px solid var(--border);
-    padding: 0.45rem 0.7rem;
-    width: 245px;
+    padding: 0.55rem 0.85rem;
+    width: 270px;
     max-width: 100%;
     user-select: none;
     text-decoration: none;
@@ -120,50 +123,46 @@
     position: absolute;
     top: calc(100% + 6px);
     right: 0;
-    width: 280px;
+    width: 300px;
     max-width: calc(100vw - 1.5rem);
     background: var(--card);
     border: 1px solid var(--neon);
-    padding: 0.5rem 0.65rem;
-    font-size: 0.66rem;
-    line-height: 1.4;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.68rem;
+    line-height: 1.5;
     color: var(--text);
     box-shadow: 0 6px 20px rgba(0, 5, 13, 0.9);
     z-index: 200;
     pointer-events: none;
   }
 
-  .pw-hover-note b {
-    color: var(--text-bright);
-  }
+  .pw-hover-note b { color: var(--text-bright); }
 
   .pw-box:hover .pw-hover-note,
-  .pw-box:focus-visible .pw-hover-note {
-    display: block;
-  }
+  .pw-box:focus-visible .pw-hover-note { display: block; }
 
   .pw-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 0.3rem;
+    gap: 10px;
+    margin-bottom: 0.4rem;
   }
 
   .pw-label {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    font-size: 0.64rem;
+    gap: 8px;
+    font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 1.3px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--text-bright);
   }
 
   .pw-dot {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     background: var(--red);
     box-shadow: 0 0 8px rgba(255, 51, 85, 0.85);
     animation: pwBlink 1.2s ease-in-out infinite;
@@ -188,39 +187,31 @@
   }
 
   .pw-status {
-    font-size: 0.64rem;
+    font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     line-height: 1;
   }
 
-  .pw-status.is-finished {
-    color: var(--green);
-  }
-
-  .pw-status.is-not-finished {
-    color: var(--red);
-  }
-
-  .pw-status.is-stale {
-    color: var(--gold);
-  }
+  .pw-status.is-finished { color: var(--green); }
+  .pw-status.is-not-finished { color: var(--red); }
+  .pw-status.is-stale { color: var(--gold); }
 
   .pw-leader-row {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 8px;
-    margin-top: 0.22rem;
-    padding-top: 0.25rem;
+    gap: 10px;
+    margin-top: 0.3rem;
+    padding-top: 0.3rem;
     border-top: 1px dashed var(--border);
-    font-size: 0.63rem;
+    font-size: 0.66rem;
     color: var(--text-dim);
   }
 
   .pw-leader {
-    font-size: 0.7rem;
+    font-size: 0.76rem;
     font-weight: 700;
     color: var(--text-bright);
     text-align: right;
@@ -230,28 +221,26 @@
   }
 
   .pw-meta {
-    margin-top: 0.22rem;
-    font-size: 0.58rem;
+    margin-top: 0.3rem;
+    font-size: 0.62rem;
     color: var(--text-dim);
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
     display: flex;
     justify-content: space-between;
     gap: 6px;
   }
 
-  .pw-meta .pw-updated.is-stale {
-    color: var(--gold);
-  }
+  .pw-meta .pw-updated.is-stale { color: var(--gold); }
 
   .footer {
     position: relative;
     text-align: center;
-    font-size: 0.62rem;
+    font-size: 0.65rem;
     color: var(--text-dim);
     letter-spacing: 2px;
     border-top: 1px solid var(--border);
-    padding-top: 0.4rem;
-    margin-top: 0.25rem;
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
     text-transform: uppercase;
   }
 
@@ -263,7 +252,7 @@
     border: none;
     padding: 0;
     font-family: inherit;
-    font-size: 0.72rem;
+    font-size: 0.8rem;
     line-height: 1;
     color: var(--text-bright);
     opacity: 0.420;
@@ -275,7 +264,7 @@
 
   .eye-btn img {
     display: block;
-    height: 0.95rem;
+    height: 1.1rem;
     width: auto;
   }
 
@@ -286,44 +275,44 @@
   }
 
   .section-label {
-    font-size: 0.66rem;
+    font-size: 0.72rem;
     letter-spacing: 2.2px;
     text-transform: uppercase;
     color: var(--text-dim);
     border-bottom: 1px dashed var(--border);
-    padding-bottom: 3px;
-    margin-bottom: 0.45rem;
+    padding-bottom: 4px;
+    margin-bottom: 0.65rem;
   }
 
   .core-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.55rem;
-    margin-bottom: 0.7rem;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .tools-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.55rem;
-    margin-bottom: 0.5rem;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
   }
 
   .extra-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 0.55rem;
-    margin-bottom: 0.55rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
   }
 
   .module-btn-card {
     background: var(--bg);
     border: 1px solid var(--border);
-    padding: 0.6rem 0.75rem;
+    padding: 0.8rem 1rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 0.3rem;
+    gap: 0.45rem;
     text-decoration: none;
     color: inherit;
     cursor: pointer;
@@ -343,11 +332,11 @@
   .hub-card {
     background: var(--bg);
     border: 1px solid var(--border);
-    padding: 0.62rem 0.78rem;
+    padding: 0.85rem 1rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 0.4rem;
+    gap: 0.55rem;
     transition: border-color 0.15s, background 0.15s;
     min-width: 0;
   }
@@ -361,17 +350,15 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 0.2rem;
+    gap: 8px;
+    margin-bottom: 0.3rem;
   }
 
-  .tag-row .card-tag {
-    margin-bottom: 0;
-  }
+  .tag-row .card-tag { margin-bottom: 0; }
 
   .glow-box {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     background: var(--green);
     box-shadow: 0 0 8px rgba(96, 195, 58, 0.8);
     animation: pwBlink 2.6s ease-in-out infinite;
@@ -384,12 +371,12 @@
   }
 
   .card-tag {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
     display: inline-block;
-    padding: 1px 5px;
+    padding: 2px 6px;
     border: 1px solid currentColor;
     border-radius: 3px;
     margin-bottom: 0.2rem;
@@ -401,30 +388,31 @@
 
   .card-title {
     color: var(--text-bright);
-    font-size: 0.88rem;
+    font-size: 0.98rem;
     font-weight: 700;
-    margin-bottom: 0.15rem;
+    margin-bottom: 0.25rem;
   }
 
   .card-desc {
     color: var(--text-dim);
-    font-size: 0.71rem;
+    font-size: 0.78rem;
+    line-height: 1.5;
   }
 
   .card-go {
     color: var(--cyan);
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.5px;
-    margin-top: 0.1rem;
+    margin-top: 0.2rem;
   }
 
   .card-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: 0.5rem;
     align-items: center;
-    padding-top: 0.28rem;
+    padding-top: 0.45rem;
     border-top: 1px dashed var(--border);
   }
 
@@ -432,15 +420,15 @@
     background: var(--card);
     color: var(--text-bright);
     border: 1px solid var(--border);
-    padding: 4px 8px;
+    padding: 5px 10px;
     font-family: inherit;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     letter-spacing: 0.4px;
     text-decoration: none;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     transition: border-color 0.15s, color 0.15s, background 0.15s;
   }
 
@@ -456,40 +444,42 @@
   }
 
   .gateway-status {
-    font-size: 0.64rem;
+    font-size: 0.68rem;
     color: var(--gold);
-    margin-top: 0.2rem;
+    margin-top: 0.3rem;
+  }
+
+  /* Anpassung für Grid bei schrumpfendem Fenster */
+  @media (max-width: 1200px) {
+    .wrapper {
+      width: 95vw;
+      /* Ab hier darf der Wrapper schrumpfen */
+    }
+    .core-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   @media (max-width: 900px) {
-    .core-grid {
-      grid-template-columns: 1fr;
-    }
-
     .tools-grid {
       grid-template-columns: 1fr;
     }
   }
 
-  @media (max-width: 600px) {
+  /* Mobiler Modus: setzt die min-width außer Kraft */
+  @media (max-width: 1000px) {
     body {
       display: block;
       padding: 0.55rem;
     }
-
     .wrapper {
-      padding: 0.7rem 0.75rem;
-    }
-
-    .header h1 {
-      font-size: 1.05rem;
-      word-break: break-word;
-    }
-
-    .trackers-wrap,
-    .pw-box {
       width: 100%;
+      min-width: 0;
+      padding: 0.85rem;
     }
+    .header h1 { font-size: 1.15rem; word-break: break-word; }
+    .trackers-wrap, .pw-box { width: 100%; }
+    .core-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -534,8 +524,6 @@
           </div>
         </a>
 
-        <!-- n0ne's tracker: no data is fetched. To update it, change data-finished="false"
-             to data-finished="true" once n0ne considers the effort finished. -->
         <div
           class="pw-box"
           id="other-tracker-widget"
@@ -561,11 +549,8 @@
           </div>
 
           <div class="pw-hover-note">
-            <b>n0ne's tracker:</b> Nothing is fetched here. It only shows whether n0ne has marked the
-            effort as finished, and it changes only when n0ne updates it by hand.<br><br>
-            <b>Why the GTA VI Race Tracker is gone:</b> it is no longer updated. It stopped checking
-            the projects after its last check at 00:17 UTC on 28 November 2026, so what it showed
-            will fall out of date.
+            <b>n0ne's tracker:</b> Nothing is fetched here. It only shows whether n0ne has marked the effort as finished, and it changes only when n0ne updates it by hand.<br><br>
+            <b>Why the GTA VI Race Tracker is gone:</b> it is no longer updated. It stopped checking the projects after its last check at 00:17 UTC on 28 November 2026, so what it showed will fall out of date.
           </div>
         </div>
       </div>
@@ -792,38 +777,22 @@ function mountPortwatch() {
   const raceWidget = document.getElementById("other-tracker-widget");
   if (!pwWidget && !raceWidget) return;
 
-  // ── PortWatch elements ──
   const pwDot = document.getElementById("pw-dot");
   const pwStatus = document.getElementById("pw-status");
   const pwLeader = document.getElementById("pw-leader");
   const pwNoteLeader = document.getElementById("pw-note-leader");
   const pwUpdated = document.getElementById("pw-updated");
-
-  // ── n0ne's tracker elements ──
   const otDot = document.getElementById("ot-dot");
   const otStatus = document.getElementById("ot-status");
 
-  // Shared UI helpers ──
   function setStatus(el, dot, updatedEl, state) {
     if (!state) {
-      // no data yet / unreachable — mark stale but keep last known values
-      if (dot) dot.classList.add("is-stale");
-      if (dot) dot.classList.remove("is-finished");
-      if (el) {
-        el.textContent = "unreachable";
-        el.classList.remove("is-finished");
-        el.classList.add("is-not-finished");
-      }
-      if (updatedEl) {
-        updatedEl.textContent = "last poll failed";
-        updatedEl.classList.add("is-stale");
-      }
+      if (dot) { dot.classList.add("is-stale"); dot.classList.remove("is-finished"); }
+      if (el) { el.textContent = "unreachable"; el.classList.remove("is-finished"); el.classList.add("is-not-finished"); }
+      if (updatedEl) { updatedEl.textContent = "last poll failed"; updatedEl.classList.add("is-stale"); }
       return;
     }
-    if (dot) {
-      dot.classList.remove("is-stale");
-      dot.classList.toggle("is-finished", !!state.finished);
-    }
+    if (dot) { dot.classList.remove("is-stale"); dot.classList.toggle("is-finished", !!state.finished); }
     if (el) {
       el.textContent = state.finished ? "finished" : "not finished";
       el.classList.toggle("is-finished", !!state.finished);
@@ -841,7 +810,6 @@ function mountPortwatch() {
     if (noteEl) noteEl.textContent = leader;
   }
 
-  // ── PortWatch: use the numbers PortWatch publishes in tracker.json ──
   function toNumberOrNaN(v) {
     if (typeof v === "number") return Number.isFinite(v) ? v : NaN;
     if (typeof v === "string") {
@@ -858,7 +826,6 @@ function mountPortwatch() {
     const efforts = Array.isArray(data.efforts) ? data.efforts : [];
     if (!history.length) return null;
 
-    // newest entry by date (fall back to array order)
     const latest = history.reduce((best, h) =>
       !best || String(h.date || "") >= String(best.date || "") ? h : best, null);
     if (!latest) return null;
@@ -899,16 +866,13 @@ function mountPortwatch() {
     }
   }
 
-  // Initial state: show "loading…" (not a hardcoded leader)
   if (pwStatus) pwStatus.textContent = "loading…";
   if (pwUpdated) pwUpdated.textContent = "fetching…";
 
-  // n0ne's tracker: no fetching. The state is just data-finished="true|false" on the widget.
   if (raceWidget) {
     setStatus(otStatus, otDot, null, { finished: raceWidget.dataset.finished === "true" });
   }
 
-  // PortWatch polls on its own interval.
   syncPortwatch();
   if (pwWidget) setInterval(syncPortwatch, Number(pwWidget.dataset.pollMs) || 180000);
 }

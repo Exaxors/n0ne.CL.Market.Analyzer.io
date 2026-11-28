@@ -393,7 +393,7 @@
     <header class="header">
       <div>
         <h1>CYBERLEEK · INFO GALLERY</h1>
-        <div class="sub" id="statusSub">MEDIA &amp; DATABASE SHEETS UNDER ./media/</div>
+        <div class="sub" id="statusSub">MEDIA UNDER ./media/</div>
       </div>
       <div class="toolbar">
         <a href="./index.html" class="btn accent">← HUB</a>
@@ -486,7 +486,10 @@ function normalizeManifest(manifestObj) {
   const items = [];
   if (!manifestObj || typeof manifestObj !== "object") return items;
 
-  const topCategories = ["debunked and fake", "info", "watermarks"];
+  // every list in the manifest is a category (named after its folder), except the sheet lists
+  const topCategories = Object.keys(manifestObj).filter(
+    (k) => Array.isArray(manifestObj[k]) && k !== "sheets" && k !== "entries"
+  );
   topCategories.forEach((catKey) => {
     const arr = manifestObj[catKey];
     if (!Array.isArray(arr)) return;
@@ -562,6 +565,16 @@ function getSheetDatabases() {
   ).sort((a, b) => a.localeCompare(b));
 }
 
+function groupOf(item) {
+  return item.group || item.database || "sheets";
+}
+
+function getSheetGroups() {
+  return Array.from(
+    new Set(allItems.filter((i) => i.isSheet).map(groupOf))
+  ).sort((a, b) => a.localeCompare(b));
+}
+
 function getTopCategories() {
   return Array.from(
     new Set(allItems.filter((i) => !i.isSheet && i.category).map((i) => i.category))
@@ -574,7 +587,7 @@ function renderFilterControls() {
   const totalCount = allItems.length;
   const sheetCount = allItems.filter((i) => i.isSheet).length;
   const topCats = getTopCategories();
-  const dbs = getSheetDatabases();
+  const groups = getSheetGroups();
   const prevVal = activeFilter;
 
   const options = [
@@ -584,10 +597,10 @@ function renderFilterControls() {
       const cnt = allItems.filter((i) => !i.isSheet && i.category === cat).length;
       return `<option value="cat:${cat}"${prevVal === `cat:${cat}` ? " selected" : ""}>${cat} (${cnt})</option>`;
     }),
-    `<option value="sheets"${prevVal === "sheets" ? " selected" : ""}>sheets (${sheetCount})</option>`,
-    ...dbs.map((db) => {
-      const cnt = allItems.filter((i) => i.isSheet && i.database === db).length;
-      return `<option value="db:${db}"${prevVal === `db:${db}` ? " selected" : ""}>${db} (${cnt})</option>`;
+    ...(sheetCount ? [`<option value="sheets"${prevVal === "sheets" ? " selected" : ""}>sheets (${sheetCount})</option>`] : []),
+    ...groups.map((g) => {
+      const cnt = allItems.filter((i) => i.isSheet && groupOf(i) === g).length;
+      return `<option value="grp:${g}"${prevVal === `grp:${g}` ? " selected" : ""}>${g} (${cnt})</option>`;
     }),
   ];
 
@@ -600,10 +613,10 @@ function renderFilterControls() {
       key: `cat:${cat}`,
       label: `${cat} (${allItems.filter((i) => !i.isSheet && i.category === cat).length})`,
     })),
-    { key: "sheets", label: `sheets (${sheetCount})` },
-    ...dbs.map((db) => ({
-      key: `db:${db}`,
-      label: `${db} (${allItems.filter((i) => i.isSheet && i.database === db).length})`,
+    ...(sheetCount ? [{ key: "sheets", label: `sheets (${sheetCount})` }] : []),
+    ...groups.map((g) => ({
+      key: `grp:${g}`,
+      label: `${g} (${allItems.filter((i) => i.isSheet && groupOf(i) === g).length})`,
     })),
   ];
 
@@ -672,6 +685,10 @@ function matchesActiveFilter(item) {
   if (activeFilter.startsWith("cat:")) {
     const catName = activeFilter.slice(4);
     return !item.isSheet && item.category === catName;
+  }
+  if (activeFilter.startsWith("grp:")) {
+    const grpName = activeFilter.slice(4);
+    return Boolean(item.isSheet && groupOf(item) === grpName);
   }
   if (activeFilter.startsWith("db:")) {
     const dbName = activeFilter.slice(3);
@@ -770,7 +787,9 @@ async function initGallery() {
   const mediaCount = allItems.filter((i) => !i.isSheet).length;
   document.getElementById("statusSub").textContent = manifestError
     ? `MANIFEST ERROR (${MANIFEST_PATH}) · ${manifestError}`
-    : `${mediaCount} MEDIA FILES · ${dbCount} SHEET DATABASES · ${sheetCount} SHEETS INDEXED`;
+    : sheetCount
+    ? `${mediaCount} MEDIA FILES · ${dbCount} SHEET DATABASES · ${sheetCount} SHEETS INDEXED`
+    : `${mediaCount} MEDIA FILES`;
 }
 
 document.getElementById("filterSelect").addEventListener("change", (e) => {

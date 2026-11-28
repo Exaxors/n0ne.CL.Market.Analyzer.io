@@ -353,6 +353,7 @@
 
   .tag-row {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 6px;
     margin-bottom: 0.2rem;
@@ -369,6 +370,11 @@
     box-shadow: 0 0 8px rgba(96, 195, 58, 0.8);
     animation: pwBlink 2.6s ease-in-out infinite;
     flex-shrink: 0;
+  }
+
+  .glow-box.is-gold {
+    background: var(--gold);
+    box-shadow: 0 0 8px rgba(245, 197, 66, 0.8);
   }
 
   .card-tag {
@@ -522,37 +528,40 @@
           </div>
         </a>
 
-        <a
+        <!-- n0ne's tracker: no data is fetched. To update it, change data-finished="false"
+             to data-finished="true" once n0ne considers the effort finished. -->
+        <div
           class="pw-box"
           id="other-tracker-widget"
-          href="https://vuyp.github.io/gta6-pc-race/#standings"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Open Race Tracker"
-          data-tracker-url="https://vuyp.github.io/gta6-pc-race/"
-          data-poll-ms="180000"
+          tabindex="0"
+          aria-label="n0ne's tracker"
+          data-finished="false"
         >
           <div class="pw-top">
             <span class="pw-label">
               <span class="pw-dot" id="ot-dot" aria-hidden="true"></span>
-              <span>Race Tracker</span>
+              <span>n0ne's tracker</span>
             </span>
-            <span class="pw-status is-not-finished" id="ot-status">loading…</span>
+            <span class="pw-status is-not-finished" id="ot-status">not finished</span>
           </div>
 
           <div class="pw-leader-row">
-            <span>Lead</span>
-            <span class="pw-leader" id="ot-leader">…</span>
+            <span>Set by</span>
+            <span class="pw-leader">n0ne</span>
           </div>
 
           <div class="pw-meta">
-            <span class="pw-updated" id="ot-updated">waiting for data</span>
+            <span class="pw-updated">manual · no data fetched</span>
           </div>
 
           <div class="pw-hover-note">
-            <b>Race Tracker:</b> Quick view of who is generally leading (<span id="ot-note-leader">…</span>) and whether it is considered finished (stage 7 of 7 = playable, with no next goal left). Click anywhere to open the Race Tracker.
+            <b>n0ne's tracker:</b> Nothing is fetched here. It only shows whether n0ne has marked the
+            effort as finished, and it changes only when n0ne updates it by hand.<br><br>
+            <b>Why the GTA VI Race Tracker is gone:</b> it is no longer updated. It stopped checking
+            the projects after its last check at 00:17 UTC on 28 November 2026, so what it showed
+            will fall out of date.
           </div>
-        </a>
+        </div>
       </div>
     </header>
 
@@ -618,7 +627,10 @@ const CORE_MODULES = [
   {
     id: "mandy-guide",
     badge: "Mandyhub Guide",
-    badgeClass: "tag-internal",
+    badgeClass: "tag-future",
+    badge2: "wait for more progress",
+    badge2Class: "tag-external",
+    glowClass: "is-gold",
     title: "Mandy Run & Shader Guide",
     description: "Build, pre-warm shaders, and launch via Mandyhub, plus tips for managing repos and app.ron.",
     href: "./mandy_run_guide.html",
@@ -638,11 +650,12 @@ let gatewayAttemptCount = 0;
 function renderModuleButton(item) {
   const targetAttrs = item.external ? ' target="_blank" rel="noopener noreferrer"' : "";
   const hasGlowBox = item.id === "timeline" || item.id === "market" || item.id === "mandy-guide";
-  const glowHtml = hasGlowBox ? '<span class="glow-box" aria-hidden="true"></span>' : "";
+  const glowHtml = hasGlowBox ? `<span class="glow-box${item.glowClass ? " " + item.glowClass : ""}" aria-hidden="true"></span>` : "";
+  const tag2Html = item.badge2 ? `<span class="card-tag ${item.badge2Class || "tag-external"}">${item.badge2}</span>` : "";
   return `
     <a class="module-btn-card" href="${item.href}"${targetAttrs} data-link-id="${item.id}">
       <div>
-        <div class="tag-row">${glowHtml}<span class="card-tag ${item.badgeClass || "tag-internal"}">${item.badge || "Module"}</span></div>
+        <div class="tag-row">${glowHtml}<span class="card-tag ${item.badgeClass || "tag-internal"}">${item.badge || "Module"}</span>${tag2Html}</div>
         <div class="card-title">${item.title}</div>
         <div class="card-desc">${item.description}</div>
       </div>
@@ -767,7 +780,7 @@ function mountHub() {
   }
 }
 
-/* ───── PortWatch VI & Race Tracker widgets ───── */
+/* ───── PortWatch VI & n0ne's tracker widgets ───── */
 function mountPortwatch() {
   const pwWidget = document.getElementById("portwatch-widget");
   const raceWidget = document.getElementById("other-tracker-widget");
@@ -780,12 +793,9 @@ function mountPortwatch() {
   const pwNoteLeader = document.getElementById("pw-note-leader");
   const pwUpdated = document.getElementById("pw-updated");
 
-  // ── Race Tracker elements ──
+  // ── n0ne's tracker elements ──
   const otDot = document.getElementById("ot-dot");
   const otStatus = document.getElementById("ot-status");
-  const otLeader = document.getElementById("ot-leader");
-  const otNoteLeader = document.getElementById("ot-note-leader");
-  const otUpdated = document.getElementById("ot-updated");
 
   // Shared UI helpers ──
   function setStatus(el, dot, updatedEl, state) {
@@ -883,86 +893,18 @@ function mountPortwatch() {
     }
   }
 
-  // ── Race Tracker: parse the standings page ──
-  //    Leader: first <li> under #standings that contains an <h3>, using the
-  //    h3 text. Fallback: look for "Playable: yes/no. NAME," but only as a
-  //    last resort — the h3 is the authoritative source.
-  //    Finished: "Stage N of M" where N === M, or explicit "Playable: yes" -- but only
-  //    while the leader's card does not say it is still short of the next goal.
-  function parseRacePage(html) {
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const scope = doc.querySelector("#standings") || doc;
-
-    // Leader: first list item with an h3
-    let leader = "";
-    let leaderItem = null;
-    for (const li of scope.querySelectorAll("ol > li, ul > li")) {
-      const h3 = li.querySelector("h3");
-      if (h3 && h3.textContent.trim()) {
-        leader = h3.textContent.trim();
-        leaderItem = li;
-        break;
-      }
-    }
-    // Last-resort fallback: "Playable: yes. NAME," pattern
-    if (!leader) {
-      const text = doc.body ? doc.body.textContent : "";
-      const m = text.match(/Playable:\s*(?:yes|no)\.\s*([A-Za-z0-9 _.-]{2,40}?)[,.]/i);
-      if (m) leader = m[1].trim();
-    }
-
-    // Finished: explicit "Playable: yes" OR "Stage N of N"
-    const bodyText = doc.body ? doc.body.textContent : "";
-    const playableYes = /Playable:\s*yes/i.test(bodyText);
-    let stageDone = false;
-    for (const m of bodyText.matchAll(/Stage\s+(\d+)\s+of\s+(\d+)/gi)) {
-      const n = Number(m[1]);
-      const total = Number(m[2]);
-      if (Number.isFinite(n) && Number.isFinite(total) && total > 0 && n === total) {
-        stageDone = true;
-        break;
-      }
-    }
-    // "Playable" (stage 7 of 7) is reached before the effort is really done: while the
-    // leader's card still says "N step(s) short of the next goal", it is NOT finished.
-    const goalScope = leaderItem ? leaderItem.textContent : bodyText;
-    const shortOfGoal = /short\s+of\s+the\s+next\s+goal/i.test(goalScope);
-    const finished = (playableYes || stageDone) && !shortOfGoal;
-
-    // Only return a state if we actually found a leader; otherwise null
-    // (so the UI shows "unreachable" instead of a stale "Vice-Tay").
-    return leader ? { leader, finished } : null;
-  }
-
-  async function syncRace() {
-    const url = raceWidget && raceWidget.dataset.trackerUrl;
-    if (!url) return;
-    try {
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      const state = parseRacePage(await res.text());
-      if (state) {
-        setLeader(otLeader, otNoteLeader, state.leader);
-        setStatus(otStatus, otDot, otUpdated, state);
-      } else {
-        setStatus(otStatus, otDot, otUpdated, null);
-      }
-    } catch (err) {
-      setStatus(otStatus, otDot, otUpdated, null);
-    }
-  }
-
   // Initial state: show "loading…" (not a hardcoded leader)
   if (pwStatus) pwStatus.textContent = "loading…";
-  if (otStatus) otStatus.textContent = "loading…";
   if (pwUpdated) pwUpdated.textContent = "fetching…";
-  if (otUpdated) otUpdated.textContent = "fetching…";
 
-  // Kick off both; poll on their own intervals.
+  // n0ne's tracker: no fetching. The state is just data-finished="true|false" on the widget.
+  if (raceWidget) {
+    setStatus(otStatus, otDot, null, { finished: raceWidget.dataset.finished === "true" });
+  }
+
+  // PortWatch polls on its own interval.
   syncPortwatch();
-  syncRace();
   if (pwWidget) setInterval(syncPortwatch, Number(pwWidget.dataset.pollMs) || 180000);
-  if (raceWidget) setInterval(syncRace, Number(raceWidget.dataset.pollMs) || 180000);
 }
 
 window.addEventListener("DOMContentLoaded", () => {
